@@ -34,31 +34,36 @@
                                               @"public.html" : NSHTMLTextDocumentType};
         
         NSString     *htmlAsString;
+        NSData *htmlPasteboardData = [pasteboard dataForPasteboardType:@"public.html"];
+        if(htmlPasteboardData){
+            htmlAsString = [[NSString alloc] initWithData:htmlPasteboardData encoding:NSUTF8StringEncoding];
+        }else{
         
-        for (NSString *pasteboardType in pasteboardTypes){
-            @try{
-                NSData *pasteboardData = [pasteboard dataForPasteboardType:pasteboardType];
-                if(pasteboardData){
-                    NSLog(@"Found data for type %@", pasteboardType);
-                    NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc]
-                                                                   initWithData:pasteboardData
-                                                                   options:@{NSDocumentTypeDocumentAttribute: pasteboardTypesDict[pasteboardType]}
-                                                                   documentAttributes:NULL error:NULL];
+	        for (NSString *pasteboardType in pasteboardTypes){
+	            @try{
+	                NSData *pasteboardData = [pasteboard dataForPasteboardType:pasteboardType];
+	                if(pasteboardData){
+	                    NSLog(@"Found data for type %@", pasteboardType);
+	                    NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc]
+	                                                                   initWithData:pasteboardData
+	                                                                   options:@{NSDocumentTypeDocumentAttribute: pasteboardTypesDict[pasteboardType]}
+	                                                                   documentAttributes:NULL error:NULL];
                     
-                    //Saving the NSAttributedString with all its attributes as a NSData Entity
-                    NSData *htmlData = [attributedString dataFromRange:NSMakeRange(0, attributedString.length)
-                                                    documentAttributes:@{NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType}
-                                                                 error:NULL];
-                    //Convert the NSData into HTML String with UTF-8 Encoding
-                    htmlAsString = [[NSString alloc] initWithData:htmlData encoding:NSUTF8StringEncoding];
-                    break;
-                }
-            }
-            @catch(NSException *e){
-                NSLog(@"Unparseable pasteboard data type %@", pasteboardType);
-            }
-        }
+	                    //Saving the NSAttributedString with all its attributes as a NSData Entity
+	                    NSData *htmlData = [attributedString dataFromRange:NSMakeRange(0, attributedString.length)
+	                                                    documentAttributes:@{NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType}
+	                                                                 error:NULL];
+	                    //Convert the NSData into HTML String with UTF-8 Encoding
+	                    htmlAsString = [[NSString alloc] initWithData:htmlData encoding:NSUTF8StringEncoding];
+	                    break;
+	                }
+	            }
+	            @catch(NSException *e){
+	                NSLog(@"Unparseable pasteboard data type %@", pasteboardType);
+	            }
+	        }
         
+		}
         if (htmlAsString == nil) {
             htmlAsString = @"";
         }
